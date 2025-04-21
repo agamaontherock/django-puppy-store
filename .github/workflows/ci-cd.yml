@@ -1,0 +1,53 @@
+name: Django CI/CD (SQLite)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          cd ${{ github.workspace }}/puppy_store
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run flake8 (code check)
+        run: |
+          pip install flake8
+          flake8 .
+
+      - name: Run Django tests (SQLite)
+        run: |
+          python manage.py migrate
+          python manage.py test
+
+  # deploy:
+  #   needs: build-and-test
+  #   runs-on: ubuntu-latest
+  #   if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+
+  #     - name: Deploy to Heroku
+  #       env:
+  #         HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+  #       run: |
+  #         git remote add heroku https://git.heroku.com/<your-heroku-app-name>.git
+  #         echo "machine api.heroku.com login ${{ secrets.HEROKU_EMAIL }} password ${{ secrets.HEROKU_API_KEY }}" > ~/.netrc
+  #         echo "machine git.heroku.com login ${{ secrets.HEROKU_EMAIL }} password ${{ secrets.HEROKU_API_KEY }}" >> ~/.netrc
+  #         git push heroku HEAD:main --force
