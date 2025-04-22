@@ -94,6 +94,7 @@ class CreateNewPuppyTest(TestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+
 class UpdateSinglePuppyTest(TestCase):
     """ Test module for updating an existing puppy record """
 
